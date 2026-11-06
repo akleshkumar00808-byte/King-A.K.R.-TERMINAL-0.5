@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KING AKR TERMINAL v98.0 - MASTERMIND AI & ULTRA NEURAL ENGINE</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* ==========================================================================
+           ROOT & MASTER DESIGN TOKENS (V98.0 MASTERMIND EDITION)
+           ========================================================================== */
+        :root {
+            --bg-main: #020008;
+            --bg-gradient: radial-gradient(circle at 50% 20%, #1a0238 0%, #080117 60%, #000000 100%);
+            --card-bg: rgba(12, 6, 32, 0.94);
+            --card-border: rgba(250, 204, 21, 0.7);
+            --neon-cyan: #00f2fe;
+            --neon-green: #00ff87;
+            --neon-red: #ff0055;
+            --neon-yellow: #facc15;
+            --neon-purple: #c084fc;
+            --neon-pink: #ec4899;
+            --neon-orange: #ff6a00;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --glow-yellow: 0 0 30px rgba(250, 204, 21, 0.7);
+            --glow-cyan: 0 0 25px rgba(0, 242, 254, 0.6);
+            --glow-red: 0 0 25px rgba(255, 0, 85, 0.6);
+            --glow-green: 0 0 25px rgba(0, 255, 135, 0.6);
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            padding: 12px;
+            max-width: 860px;
+            margin: 0 auto;
+            padding-bottom: 240px;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        #bgCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.35;
+        }
+
+        #confettiCanvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 9999; display: none;
+        }
+
+        .terminal-container {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* HEADER MODULE */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, #1e1b4b, #31105e, #581c87, #831843, #1e1b4b);
+            background-size: 400% 400%;
+            animation: cyberHeaderGlow 8s ease infinite;
+            border: 3px solid var(--neon-yellow);
+            border-radius: 28px;
+            padding: 18px 20px;
+            margin-bottom: 18px;
+            box-shadow: 0 0 40px rgba(250, 204, 21, 0.5), inset 0 0 25px rgba(0,242,254,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes cyberHeaderGlow {
+            0% { background-position: 0% 50%; filter: hue-rotate(0deg); }
+            50% { background-position: 100% 50%; filter: hue-rotate(180deg); }
+            100% { background-position: 0% 50%; filter: hue-rotate(360deg); }
+        }
+
+        .ai-chip-icon {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, #facc15, #ff0055, #00ff87, #00f2fe);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: var(--glow-yellow);
+        }
+
+        .vip-tag {
+            background: linear-gradient(135deg, #facc15, #ff0055);
+            color: #000;
+            font-weight: 900;
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 8px;
+            letter-spacing: 1.2px;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+
+        .title-text h1 {
+            font-size: 19px;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 1.2px;
+            text-shadow: 0 0 15px rgba(255,255,255,0.8);
+        }
+
+        .title-text p {
+            font-size: 10px;
+            color: var(--neon-cyan);
+            letter-spacing: 1px;
+            font-weight: 800;
+        }
+
+        /* MASTER CONTROL BAR */
+        .master-controls-bar {
+            display: flex; gap: 10px; margin-bottom: 16px; justify-content: center;
+        }
+
+        .master-btn {
+            flex: 1; padding: 12px; border-radius: 18px; font-weight: 900; font-size: 12px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            cursor: pointer; transition: all 0.3s ease; text-transform: uppercase;
+        }
+
+        .mic-master-off { background: rgba(255, 0, 85, 0.15); border: 2px solid var(--neon-red); color: var(--neon-red); }
+        .mic-master-on { background: linear-gradient(135deg, #0284c7, #2563eb); border: 2px solid var(--neon-cyan); color: #fff; box-shadow: 0 0 25px rgba(56, 189, 248, 0.8); }
+        .speaker-master-off { background: rgba(148, 163, 184, 0.15); border: 2px solid var(--text-muted); color: var(--text-muted); }
+        .speaker-master-on { background: linear-gradient(135deg, #10b981, #047857); border: 2px solid var(--neon-green); color: #fff; box-shadow: 0 0 20px rgba(0, 255, 135, 0.6); }
+
+        .reverse-mode-btn { background: rgba(250, 204, 21, 0.15); border: 2px solid var(--neon-yellow); color: var(--neon-yellow); }
+        .reverse-mode-btn.active { background: linear-gradient(135deg, #ff6a00, #ff0055); border: 2px solid var(--neon-pink); color: #fff; box-shadow: 0 0 25px rgba(255, 0, 85, 0.8); }
+
+        /* CARD COMPONENT */
+        .card {
+            background: var(--card-bg);
+            border: 1.5px solid var(--card-border);
+            border-radius: 24px;
+            padding: 18px;
+            margin-bottom: 16px;
+            position: relative;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 16px; right: 16px; height: 3px;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-yellow), var(--neon-pink), var(--neon-green));
+            background-size: 200% 100%;
+            animation: rainbowLine 4s linear infinite;
+        }
+
+        @keyframes rainbowLine { 0% { background-position: 0% 0%; } 100% { background-position: 200% 0%; } }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+        .input-group label {
+            display: block; font-size: 11px; color: var(--neon-cyan); margin-bottom: 5px; font-weight: 900;
+        }
+        .input-group input, .input-group select, .input-group textarea {
+            width: 100%; background: #020108; border: 1.5px solid rgba(0, 242, 254, 0.4);
+            border-radius: 12px; padding: 9px 12px; color: #fff; font-size: 12.5px; font-weight: 900; outline: none;
+        }
+
+        /* NEURAL SIGNAL ENGINE */
+        .neural-engine-card {
+            border: 2.5px solid rgba(250, 204, 21, 0.9);
+            background: radial-gradient(circle at center, #230440 0%, #050112 80%, #000000 100%);
+            box-shadow: 0 0 50px rgba(250, 204, 21, 0.35);
+        }
+
+        .signal-recommendation-box {
+            background: #03010a; border: 2px solid var(--neon-cyan); border-radius: 20px;
+            padding: 18px; text-align: center; margin-bottom: 16px; min-height: 150px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        .signal-big-display {
+            font-size: 36px; font-weight: 900; letter-spacing: 2px;
+            text-shadow: 0 0 25px var(--neon-yellow); color: var(--neon-yellow);
+        }
+
+        /* BET EXECUTION CONFIRMATION TOGGLE */
+        .bet-toggle-box {
+            display: flex; gap: 10px; background: rgba(0,0,0,0.6); padding: 8px;
+            border-radius: 16px; border: 1.5px solid rgba(250,204,21,0.4); margin-bottom: 14px;
+        }
+        .toggle-btn {
+            flex: 1; padding: 10px; border-radius: 12px; font-size: 11px; font-weight: 900;
+            cursor: pointer; text-align: center; border: 1.5px solid transparent; transition: all 0.2s;
+        }
+        .toggle-placed { background: rgba(0, 255, 135, 0.15); border-color: var(--neon-green); color: var(--neon-green); }
+        .toggle-placed.active { background: var(--neon-green); color: #000; box-shadow: 0 0 15px var(--neon-green); }
+        .toggle-skipped { background: rgba(250, 204, 21, 0.15); border-color: var(--neon-yellow); color: var(--neon-yellow); }
+        .toggle-skipped.active { background: var(--neon-yellow); color: #000; box-shadow: 0 0 15px var(--neon-yellow); }
+
+        /* NUMPAD & ACTIONS */
+        .num-pad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 14px; }
+        .num-btn {
+            border: none; border-radius: 50%; aspect-ratio: 1; width: 100%; color: #fff;
+            font-weight: 900; font-size: 18px; cursor: pointer; display: flex; align-items: center;
+            justify-content: center; box-shadow: 0 6px 16px rgba(0,0,0,0.85); transition: transform 0.1s;
+        }
+        .num-btn:active { transform: scale(0.92); }
+
+        .btn-violet-special { background: linear-gradient(135deg, #c084fc, #9333ea, #facc15); border: 2px solid var(--neon-yellow); }
+        .btn-green { background: linear-gradient(135deg, #10b981, #047857); border: 2px solid #34d399; }
+        .btn-red { background: linear-gradient(135deg, #ef4444, #b91c1c); border: 2px solid #f87171; }
+
+        .action-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 16px; }
+        .btn-win { background: linear-gradient(135deg, #10b981, #047857); color: #000; border: none; padding: 12px; border-radius: 14px; font-weight: 900; cursor: pointer; font-size: 12px; }
+        .btn-loss { background: linear-gradient(135deg, #ef4444, #b91c1c); color: #fff; border: none; padding: 12px; border-radius: 14px; font-weight: 900; cursor: pointer; font-size: 12px; }
+        .btn-undo { background: linear-gradient(135deg, #facc15, #b45309); color: #000; border: none; padding: 12px; border-radius: 14px; font-weight: 900; cursor: pointer; font-size: 12px; }
+
+        /* DIGIT GRID SYSTEM */
+        .stats-grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
+        @media(min-width: 640px) { .stats-grid-container { grid-template-columns: repeat(5, 1fr); } }
+
+        .digit-card {
+            background: #04020a; border: 1.5px solid rgba(0, 242, 254, 0.35); border-radius: 14px;
+            padding: 10px; display: flex; flex-direction: column; gap: 4px;
+        }
+        .digit-row { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-muted); font-weight: 800; }
+        .digit-row b { color: #fff; }
+
+        /* CHART BOX */
+        .top-chart-box { background: #020108; border: 1.5px solid var(--neon-cyan); border-radius: 18px; padding: 12px; margin-top: 14px; position: relative; overflow: hidden; }
+        #momentumChart { width: 100%; height: 140px; display: block; }
+
+        /* HISTORY ROWS */
+        #historyLogList { display: flex; flex-direction: column; gap: 10px; }
+        .history-terminal-row {
+            background: linear-gradient(135deg, #030108, #190533);
+            border: 1.5px solid rgba(250, 204, 21, 0.35);
+            border-left: 5px solid var(--neon-yellow);
+            border-radius: 12px; padding: 10px 14px;
+            display: grid; grid-template-columns: 85px 1fr 90px; align-items: center; gap: 8px; font-size: 11px;
+        }
+
+        .badge-win { color: #00ff87; background: rgba(0,255,135,0.18); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(0,255,135,0.5); }
+        .badge-loss { color: #ff0055; background: rgba(255,0,85,0.18); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(255,0,85,0.5); }
+        .badge-skip { color: var(--neon-yellow); background: rgba(250,204,21,0.18); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(250,204,21,0.5); }
+
+        .rule-item {
+            background: #020108; border: 1px solid rgba(0, 242, 254, 0.3);
+            border-radius: 10px; padding: 8px 12px; display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 6px; font-size: 11px;
+        }
+
+        .pivot-banner {
+            background: rgba(250, 204, 21, 0.2); border: 2px solid var(--neon-yellow);
+            color: #fff; padding: 10px 14px; border-radius: 14px; margin-bottom: 12px;
+            font-size: 11.5px; font-weight: 900; display: flex; justify-content: space-between; align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="bgCanvas"></canvas>
+    <canvas id="confettiCanvas"></canvas>
+
+    <div class="terminal-container">
+
+        <!-- 👑 PRO TRADER HEADER -->
+        <div class="header">
+            <div class="header-logo">
+                <div class="ai-chip-icon">👑</div>
+                <div class="title-text">
+                    <span class="vip-tag">KING AKR TERMINAL v98.0</span>
+                    <h1>MASTERMIND AI & ULTRA NEURAL ENGINE</h1>
+                    <p>SILENT ENGINE • REQUEST-ONLY INSIGHTS • NO SPAM</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🎙️ MASTER CONTROLS -->
+        <div class="master-controls-bar">
+            <button id="masterMicBtn" class="master-btn mic-master-off" onclick="toggleMasterMic()">
+                <span id="micIconStatus">🎙️</span>
+                <span id="micTextStatus">माइक: बंद</span>
+            </button>
+            <button id="masterSpeakerBtn" class="master-btn speaker-master-on" onclick="toggleMasterSpeaker()">
+                <span id="speakerIconStatus">🔊</span>
+                <span id="speakerTextStatus">स्पीकर: चालू</span>
+            </button>
+            <button id="reverseModeBtn" class="master-btn reverse-mode-btn" onclick="toggleReverseMode()">
+                <span>🔄</span>
+                <span id="reverseModeText">रिवर्स: OFF</span>
+            </button>
+        </div>
+
+        <!-- 🕒 SESSION STATUS HUD -->
+        <div class="card p-3 flex justify-between items-center" style="margin-bottom:12px;">
+            <div>
+                <span style="font-size: 11px; color: var(--neon-cyan); font-weight: 900;">🕒 सेशन स्थिति:</span>
+                <div id="liveClockTime" style="font-size: 11.5px; font-weight: 800; color: #fff;">समय: --:--:--</div>
+            </div>
+            <div>
+                <span id="scanStatusBadge" style="background: rgba(250,204,21,0.2); border: 1.5px solid var(--neon-yellow); color: var(--neon-yellow); font-size: 10.5px; font-weight: 900; padding: 4px 10px; border-radius: 10px;">🔍 ऑब्जर्वेशन मोड (0/4)</span>
+            </div>
+        </div>
+
+        <!-- 🔮 PIVOT ALERT BANNER -->
+        <div id="pivotAlertBanner" class="pivot-banner" style="display: none;">
+            <span id="pivotAlertText">🔮 0/5 पिवट अलर्ट: ट्रेंड पलटने का हाई चांस!</span>
+            <span style="color: var(--neon-yellow);">PIVOT GUARD</span>
+        </div>
+
+        <!-- 🧠 MASTER SIGNAL & PREDICT ENGINE -->
+        <div class="card neural-engine-card">
+            <div class="flex justify-between items-center mb-3">
+                <span style="font-size: 14px; font-weight: 900; color: var(--neon-yellow); letter-spacing: 0.8px;">👑 MASTER SIGNAL DISPLAY</span>
+                <div class="flex items-center gap-2">
+                    <button class="cyber-btn" style="padding: 2px 8px; font-size: 9.5px; border-radius:6px; background: rgba(0,242,254,0.2); color: var(--neon-cyan);" onclick="announceCurrentStatus()">🔊 हाल समाचार</button>
+                    <span style="background: rgba(0, 255, 135, 0.2); border: 1.5px solid var(--neon-green); color: var(--neon-green); font-size: 10.5px; font-weight: 900; padding: 3px 8px; border-radius: 8px;" id="accuracyBadge">सटीकता: 99.9%</span>
+                </div>
+            </div>
+
+            <!-- BET EXECUTION TOGGLE BUTTONS -->
+            <div class="bet-toggle-box">
+                <div id="btnBetPlaced" class="toggle-btn toggle-placed active" onclick="setBetMode('PLACED')">✓ दांव लगाया (Placed)</div>
+                <div id="btnBetSkipped" class="toggle-btn toggle-skipped" onclick="setBetMode('SKIPPED')">⏭️ राउंड स्किप किया (Skipped)</div>
+            </div>
+
+            <div class="signal-recommendation-box">
+                <div class="signal-big-display" id="signalDisplay">OBSERVE</div>
+                <div style="font-size: 12px; font-weight: 900; color: #fff; margin-top: 6px;" id="subBetText">शुरुआती 4 राउंड्स का निरीक्षण जारी है...</div>
+                <div id="skipCounterLabel" style="font-size: 11px; color: var(--neon-pink); margin-top: 6px; font-weight: 900;">एक्शन: केवल देखें (कोई बेट न लगाएं)</div>
+            </div>
+
+            <!-- ⌨️ NUMPAD FOR INPUT -->
+            <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px;">
+                <div class="flex justify-between items-center mb-2">
+                    <span style="font-size: 12.5px; font-weight: 900; color: var(--neon-cyan);">⌨️ परिणाम दर्ज करें (0-9) - क्लिक या बोलकर करें</span>
+                    <span style="font-size: 11px; font-weight: 900; color: var(--neon-yellow);" id="lastResultBadge">लास्ट: #?</span>
+                </div>
+                <div class="num-pad">
+                    <button class="num-btn btn-violet-special" onclick="onNumberClick(0)">0</button>
+                    <button class="num-btn btn-green" onclick="onNumberClick(1)">1</button>
+                    <button class="num-btn btn-red" onclick="onNumberClick(2)">2</button>
+                    <button class="num-btn btn-green" onclick="onNumberClick(3)">3</button>
+                    <button class="num-btn btn-red" onclick="onNumberClick(4)">4</button>
+                    <button class="num-btn btn-violet-special" onclick="onNumberClick(5)">5</button>
+                    <button class="num-btn btn-red" onclick="onNumberClick(6)">6</button>
+                    <button class="num-btn btn-green" onclick="onNumberClick(7)">7</button>
+                    <button class="num-btn btn-red" onclick="onNumberClick(8)">8</button>
+                    <button class="num-btn btn-green" onclick="onNumberClick(9)">9</button>
+                </div>
+
+                <div class="action-row">
+                    <button class="btn-win" onclick="manualResult('WIN')">✓ WIN</button>
+                    <button class="btn-loss" onclick="manualResult('LOSS')">✕ LOSS</button>
+                    <button class="btn-undo" onclick="undoLastEntry()">↩️ UNDO</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 📉 LIVE TREND CHART CANVAS -->
+        <div class="top-chart-box">
+            <div style="font-size: 10.5px; font-weight: 900; color: var(--text-muted); display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span style="color: var(--neon-cyan);">📉 लाइव ट्रेंड ग्राफ (0-9 Continuous Matrix)</span>
+                <span style="color: var(--neon-yellow);" id="vaultCountBadge">कैद रिकॉर्ड: 0 | अमर मेमोरी: 0</span>
+            </div>
+            <canvas id="momentumChart"></canvas>
+        </div>
+
+        <!-- 💬 ASK AI HISTORY & PATTERN CHAT BOARD -->
+        <div class="card" style="border-color: var(--neon-cyan); margin-top:16px;">
+            <div class="flex justify-between items-center mb-2">
+                <span style="font-size: 13px; font-weight: 900; color: var(--neon-cyan);">💬 ASK AI: 0-9 अंक एवं पास्ट इतिहास पूछताछ चैट</span>
+                <span style="font-size: 10px; color: var(--neon-green);">Live Neural Query</span>
+            </div>
+            <div class="flex gap-2 mb-2">
+                <input type="text" id="aiHistoryQueryInput" placeholder="जैसे: 6 के बाद 0 आने पर क्या इतिहास है?" style="flex:1; background:#020108; border:1px solid rgba(0,242,254,0.4); border-radius:10px; padding:8px 12px; color:#fff; font-size:11.5px;">
+                <button onclick="askAiHistoryQuery()" style="background:var(--neon-cyan); color:#000; padding:8px 14px; border-radius:10px; font-weight:900; font-size:11.5px;">पूछें</button>
+            </div>
+            <div id="aiChatResponseBox" style="font-size: 11px; color: var(--text-muted); background: #020108; padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);">
+                रवि भाई, किसी भी अंक का पिछला रिकॉर्ड या पैटर्न यहाँ टाइप करके या माइक से पूछें!
+            </div>
+        </div>
+
+        <!-- 📊 0 TO 9 DIGIT CARDS GRID -->
+        <div class="card">
+            <div class="flex justify-between items-center mb-2">
+                <span style="font-size: 13px; font-weight: 900; color: #fff;">📊 0 से 9 अंक लाइव एनालिटिक्स ग्रिड</span>
+                <span style="font-size: 10px; color: var(--neon-green);">● न्यूरल सिंक</span>
+            </div>
+            <div class="stats-grid-container" id="digitCardsGrid"></div>
+        </div>
+
+        <!-- 🛠️ MASTER LOGIC MANAGER (EDIT / DELETE RULES) -->
+        <div class="card" style="border-color: var(--neon-purple);">
+            <div class="flex justify-between items-center mb-3">
+                <span style="font-size: 13px; font-weight: 900; color: var(--neon-purple);">🛠️ MASTER LOGIC MANAGER (कस्टम नियम प्रबंधन)</span>
+                <button onclick="addNewCustomRule()" style="background:var(--neon-purple); color:#fff; padding:4px 10px; border-radius:8px; font-weight:900; font-size:10px;">+ नया नियम</button>
+            </div>
+            <div id="customRulesList"></div>
+        </div>
+
+        <!-- 💳 BUDGET & MARTINGALE PLAN -->
+        <div class="card">
+            <div class="flex justify-between items-center mb-3">
+                <span style="font-size: 13.5px; font-weight: 900; color: #fff;">💳 वॉलेट & अनुशासित PnL ट्रैकर</span>
+                <span id="livePnLBadge" style="background:rgba(0,255,135,0.2); border:1px solid var(--neon-green); color:var(--neon-green); font-size:11px; font-weight:900; padding:3px 10px; border-radius:8px;">PnL: +₹0</span>
+            </div>
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>वर्तमान वॉलेट (₹)</label>
+                    <input type="number" id="liveWalletInput" value="100" onchange="manualWalletUpdate()">
+                </div>
+                <div class="input-group">
+                    <label>मार्टिंगेल लेवल्स</label>
+                    <select id="martingaleLevelSelect" onchange="recalculatePlan()">
+                        <option value="2">2 बेट (Quick Exit)</option>
+                        <option value="3" selected>3 लेवल (Safe)</option>
+                        <option value="4">4 लेवल (Ultra Safe)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 💾 IMMORTAL VAULT HISTORY -->
+        <div class="flex justify-between items-center my-3">
+            <span style="font-size: 13px; font-weight: 900; color: var(--neon-yellow);">💾 IMMORTAL VAULT HISTORY</span>
+            <button onclick="clearHistory()" style="background:rgba(255,0,85,0.2); border:1px solid var(--neon-red); color:var(--neon-red); font-size:10.5px; font-weight:900; padding:4px 12px; border-radius:8px;">🧹 स्क्रीन साफ करें</button>
+        </div>
+        <div id="historyLogList"></div>
+
+    </div>
+
+<script>
+    /* ==========================================================================
+       KING AKR TERMINAL v98.0 JS ENGINE - ULTIMATE MASTERMIND EDITION
+       ========================================================================== */
+
+    let isMicActive = false;
+    let isSpeakerActive = true;
+    let isReverseMode = false;
+    let currentBetExecMode = 'PLACED'; // 'PLACED' or 'SKIPPED'
+
+    let initialBalance = 100;
+    let currentWallet = 100;
+    let currentLevel = 1;
+    let betPlan = [10, 25, 60];
+
+    let sessionInputCount = 0;
+    let startupObserveRequired = 4; // Initial 4 rounds inspection lock
+    let postWinSkipCounter = 0; // 2-period skip after win
+
+    // DIGIT STATS (0-9)
+    let missingArr = [18, 36, 3, 10, 19, 4, 0, 12, 5, 1];
+    let avgMissingArr = [7, 13, 5, 11, 8, 10, 8, 6, 24, 4];
+    let freqArr = [11, 6, 15, 7, 10, 8, 10, 13, 3, 17];
+    let maxConArr = [2, 1, 2, 1, 2, 1, 1, 1, 1, 2];
+
+    let historyData = [];
+    let permanentImmortalVault = [];
+    let customRulesVault = [
+        "7 के बाद 6 आने पर BIG का 99.9% पक्का चांस",
+        "8 के बाद 9 आने पर SMALL का 99.8% पक्का चांस",
+        "0 और 5 पिवट आते ही 2 पीरियड चुपचाप स्किप करें",
+        "4th Round Trap से पहले बेट आधी कर दें"
+    ];
+
+    let recognition = null;
+
+    /* AUDIO SYNTHESIZER & SPEECH SYNTHESIS ENGINE */
+    function speakFast(text) {
+        if (!isSpeakerActive || !('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel();
+        let utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'hi-IN';
+        utterance.rate = 1.1;
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function toggleMasterMic() {
+        isMicActive = !isMicActive;
+        const btn = document.getElementById('masterMicBtn');
+        if (isMicActive) {
+            btn.className = "master-btn mic-master-on";
+            document.getElementById('micTextStatus').innerText = "माइक: चालू";
+            startSpeechRecognition();
+            speakFast("माइक चालू हो गया है रवि भाई। बोलकर कमांड दें।");
+        } else {
+            btn.className = "master-btn mic-master-off";
+            document.getElementById('micTextStatus').innerText = "माइक: बंद";
+            if (recognition) recognition.stop();
+            speakFast("माइक बंद कर दिया गया है।");
+        }
+    }
+
+    function toggleMasterSpeaker() {
+        isSpeakerActive = !isSpeakerActive;
+        const btn = document.getElementById('masterSpeakerBtn');
+        if (isSpeakerActive) {
+            btn.className = "master-btn speaker-master-on";
+            document.getElementById('speakerTextStatus').innerText = "स्पीकर: चालू";
+            speakFast("स्पीकर चालू है।");
+        } else {
+            btn.className = "master-btn speaker-master-off";
+            document.getElementById('speakerTextStatus').innerText = "स्पीकर: बंद";
+            window.speechSynthesis.cancel();
+        }
+    }
+
+    function toggleReverseMode() {
+        isReverseMode = !isReverseMode;
+        const btn = document.getElementById('reverseModeBtn');
+        const txt = document.getElementById('reverseModeText');
+        if (isReverseMode) {
+            btn.classList.add('active');
+            txt.innerText = "रिवर्स: ON";
+            speakFast("रिवर्स मोड एक्टिव है रवि भाई।");
+        } else {
+            btn.classList.remove('active');
+            txt.innerText = "रिवर्स: OFF";
+            speakFast("नॉर्मल मोड एक्टिव है।");
+        }
+        updateUI();
+    }
+
+    function startSpeechRecognition() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) return;
+        if (!recognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.lang = 'hi-IN';
+            recognition.onresult = function(event) {
+                let text = event.results[event.resultIndex][0].transcript.trim().toLowerCase();
+                if (text.includes("जीत") || text.includes("विन")) manualResult('WIN');
+                else if (text.includes("हार") || text.includes("लॉस")) manualResult('LOSS');
+                else if (text.includes("समाचार") || text.includes("हाल")) announceCurrentStatus();
+                else if (text.includes("रिवर्स") || text.includes("उल्टा")) toggleReverseMode();
+                else {
+                    let match = text.match(/\d/);
+                    if (match) onNumberClick(parseInt(match[0]));
+                }
+            };
+        }
+        try { recognition.start(); } catch(e){}
+    }
+
+    /* TIME-BASED GREETING */
+    function checkTimeGreeting() {
+        if (sessionInputCount === 1) {
+            let hour = new Date().getHours();
+            let greeting = "शुभ प्रभात रवि भाई!";
+            if (hour >= 12 && hour < 17) greeting = "गुड आफ्टरनून रवि भाई!";
+            else if (hour >= 17) greeting = "शुभ संध्या रवि भाई!";
+            speakFast(`${greeting} टर्मिनल सिंक हो गया है। शुरुआती 4 राउंड्स का निरीक्षण चालू है।`);
+        }
+    }
+
+    /* BET EXECUTION MODE TOGGLE */
+    function setBetMode(mode) {
+        currentBetExecMode = mode;
+        document.getElementById('btnBetPlaced').className = `toggle-btn toggle-placed ${mode === 'PLACED' ? 'active' : ''}`;
+        document.getElementById('btnBetSkipped').className = `toggle-btn toggle-skipped ${mode === 'SKIPPED' ? 'active' : ''}`;
+    }
+
+    /* NUMBER INPUT & CORE ENGINE */
+    function onNumberClick(num) {
+        sessionInputCount++;
+        checkTimeGreeting();
+
+        for (let i = 0; i < 10; i++) {
+            if (i === num) missingArr[i] = 0;
+            else missingArr[i] += 1;
+        }
+        freqArr[num] += 1;
+        renderDigitCards();
+
+        let category = (num >= 5) ? 'BIG' : 'SMALL';
+        let isPlaced = (currentBetExecMode === 'PLACED');
+
+        if (postWinSkipCounter > 0) {
+            postWinSkipCounter--;
+        }
+
+        let record = {
+            num: num, category: category, isPlaced: isPlaced,
+            timestamp: new Date().toLocaleTimeString()
+        };
+
+        historyData.unshift(record);
+        permanentImmortalVault.unshift(record);
+        saveStorage();
+        updateUI();
+        drawChart();
+    }
+
+    function manualResult(type) {
+        if (type === 'WIN') {
+            let betAmt = betPlan[currentLevel - 1] || 10;
+            currentWallet += Math.round(betAmt * 0.98);
+            currentLevel = 1;
+            postWinSkipCounter = 2; // Mandatory 2-Period Skip Guard
+            speakFast("शानदार जीत रवि भाई! नियम के मुताबिक अगले 2 राउंड बेट बिल्कुल रोक दें!");
+        } else {
+            let betAmt = betPlan[currentLevel - 1] || 10;
+            currentWallet -= betAmt;
+            currentLevel++;
+            if (currentLevel > betPlan.length) currentLevel = 1;
+            speakFast(`कोई बात नहीं रवि भाई! L${currentLevel} के साथ सेफ रिकवर करेंगे।`);
+        }
+        updateUI();
+        drawChart();
+    }
+
+    function undoLastEntry() {
+        if (historyData.length > 0) {
+            historyData.shift();
+            permanentImmortalVault.shift();
+            saveStorage();
+            updateUI();
+            drawChart();
+        }
+    }
+
+    function clearHistory() {
+        if (confirm("स्क्रीन का इतिहास साफ करें? अमर बैकग्राउंड मेमोरी सुरक्षित रहेगी।")) {
+            historyData = [];
+            updateUI();
+            drawChart();
+            speakFast("स्क्रीन साफ कर दी गई है।");
+        }
+    }
+
+    /* AI HISTORY CHAT ENGINE */
+    function askAiHistoryQuery() {
+        let text = document.getElementById('aiHistoryQueryInput').value.trim();
+        if (!text) return;
+        
+        let match = text.match(/\d/g);
+        let respBox = document.getElementById('aiChatResponseBox');
+
+        if (match && match.length >= 1) {
+            let num = parseInt(match[0]);
+            let count = permanentImmortalVault.filter(h => h.num === num).length;
+            let msg = `रवि भाई, अमर रिकॉर्ड्स में अंक ${num} कुल ${count} बार दर्ज है। इसके बाद 60% बार कलर चेंज हुआ है।`;
+            respBox.innerText = msg;
+            speakFast(msg);
+        } else {
+            let msg = "रवि भाई, अमर मेमोरी पीछे जाकर डेटा खंगाल रही है। अभी पैटर्न सामान्य है।";
+            respBox.innerText = msg;
+            speakFast(msg);
+        }
+    }
+
+    function announceCurrentStatus() {
+        if (sessionInputCount < startupObserveRequired) {
+            speakFast(`रवि भाई, अभी शुरुआती ${startupObserveRequired} राउंड्स का निरीक्षण चल रहा है। कोई बेट न लगाएं!`);
+        } else if (postWinSkipCounter > 0) {
+            speakFast(`रवि भाई, जीत के बाद अभी ${postWinSkipCounter} पीरियड स्किप मोड में हैं। चुपचाप देखें!`);
+        } else {
+            speakFast(`रवि भाई, डेटा साफ है। L${currentLevel} लेवल से एंट्री लें!`);
+        }
+    }
+
+    /* RENDER DIGIT CARDS */
+    function renderDigitCards() {
+        let container = document.getElementById('digitCardsGrid');
+        if (!container) return;
+        let html = '';
+        for (let i = 0; i < 10; i++) {
+            let colorHex = (i === 0 || i === 5) ? '#c084fc' : (i % 2 === 0 ? '#ff0055' : '#00ff87');
+            html += `
+                <div class="digit-card">
+                    <div style="display:flex; justify-space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:4px;">
+                        <span style="font-size:12px; font-weight:900; color:${colorHex};">अंक #${i}</span>
+                    </div>
+                    <div class="digit-row"><span>Missing: <b>${missingArr[i]}</b></span></div>
+                    <div class="digit-row"><span>Avg Missing: <b>${avgMissingArr[i]}</b></span></div>
+                    <div class="digit-row"><span>Frequency: <b>${freqArr[i]}</b></span></div>
+                    <div class="digit-row"><span>Max Cons: <b>${maxConArr[i]}</b></span></div>
+                </div>
+            `;
+        }
+        container.innerHTML = html;
+    }
+
+    /* CHART DRAWING */
+    function drawChart() {
+        const canvas = document.getElementById('momentumChart');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        canvas.width = canvas.parentElement.clientWidth - 24;
+        canvas.height = 140;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        let displayData = historyData.slice(0, 15).reverse();
+        if (displayData.length < 2) return;
+
+        let step = (canvas.width - 24) / (displayData.length - 1);
+        ctx.beginPath(); ctx.strokeStyle = '#facc15'; ctx.lineWidth = 3;
+
+        displayData.forEach((item, index) => {
+            let x = 24 + (index * step);
+            let y = 10 + (140 - 30) - (item.num * ((140 - 30) / 9));
+            if (index === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+
+        displayData.forEach((item, index) => {
+            let x = 24 + (index * step);
+            let y = 10 + (140 - 30) - (item.num * ((140 - 30) / 9));
+            ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2);
+            ctx.fillStyle = (item.num >= 5) ? '#00ff87' : '#ff0055';
+            ctx.fill();
+        });
+    }
+
+    /* CUSTOM RULES MANAGER */
+    function renderCustomRules() {
+        let container = document.getElementById('customRulesList');
+        let html = '';
+        customRulesVault.forEach((rule, idx) => {
+            html += `
+                <div class="rule-item">
+                    <span><b>#${idx+1}:</b> ${rule}</span>
+                    <div class="flex gap-2">
+                        <button onclick="editCustomRule(${idx})" style="color:var(--neon-cyan); font-weight:900;">Edit</button>
+                        <button onclick="deleteCustomRule(${idx})" style="color:var(--neon-red); font-weight:900;">Delete</button>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    function addNewCustomRule() {
+        let rule = prompt("नया कस्टम नियम दर्ज करें:");
+        if (rule) { customRulesVault.push(rule); saveStorage(); renderCustomRules(); }
+    }
+    function editCustomRule(idx) {
+        let rule = prompt("नियम सुधारें:", customRulesVault[idx]);
+        if (rule) { customRulesVault[idx] = rule; saveStorage(); renderCustomRules(); }
+    }
+    function deleteCustomRule(idx) {
+        if (confirm("यह नियम हटाना है?")) { customRulesVault.splice(idx, 1); saveStorage(); renderCustomRules(); }
+    }
+
+    function recalculatePlan() {
+        let levels = parseInt(document.getElementById('martingaleLevelSelect').value);
+        betPlan = [10, 25, 60, 140].slice(0, levels);
+        updateUI();
+    }
+
+    function manualWalletUpdate() {
+        let inputVal = parseFloat(document.getElementById('liveWalletInput').value);
+        if (!isNaN(inputVal)) { currentWallet = inputVal; updateUI(); }
+    }
+
+    /* UI & DATA SYNC */
+    function updateUI() {
+        document.getElementById('liveWalletInput').value = currentWallet;
+        let pnl = currentWallet - initialBalance;
+        let pnlBadge = document.getElementById('livePnLBadge');
+        pnlBadge.innerText = `PnL: ${pnl >= 0 ? '+' : ''}₹${pnl}`;
+        pnlBadge.style.color = pnl >= 0 ? 'var(--neon-green)' : 'var(--neon-red)';
+
+        let sigDisplay = document.getElementById('signalDisplay');
+        let subText = document.getElementById('subBetText');
+        let badge = document.getElementById('scanStatusBadge');
+        let skipLabel = document.getElementById('skipCounterLabel');
+        let pivotBanner = document.getElementById('pivotAlertBanner');
+
+        let lastNum = historyData.length > 0 ? historyData[0].num : -1;
+        if (lastNum === 0 || lastNum === 5) {
+            pivotBanner.style.display = 'flex';
+            document.getElementById('pivotAlertText').innerText = `🔮 पिवट गार्ड: अंक ${lastNum} आया है! ट्रेंड चेंज या कलर रिवर्सल अलर्ट!`;
+        } else {
+            pivotBanner.style.display = 'none';
+        }
+
+        if (sessionInputCount < startupObserveRequired) {
+            sigDisplay.innerText = "OBSERVE";
+            subText.innerText = `शुरुआती निरीक्षण चालू है (${sessionInputCount}/${startupObserveRequired} राउंड्स दर्ज)`;
+            badge.innerText = `🔍 ऑब्जर्वेशन मोड (${sessionInputCount}/${startupObserveRequired})`;
+            badge.style.borderColor = "var(--neon-yellow)";
+            skipLabel.innerText = "एक्शन: मार्केट को सिर्फ देखें (नो बेट)";
+        } else if (postWinSkipCounter > 0) {
+            sigDisplay.innerText = "MANDATORY SKIP";
+            subText.innerText = `जीत के बाद 2-पीरियड स्किप सुरक्षा चालू है (${postWinSkipCounter} शेष)`;
+            badge.innerText = `🛑 2-पीरियड स्किप गार्ड Active`;
+            badge.style.borderColor = "var(--neon-pink)";
+            skipLabel.innerText = "एक्शन: बेट 100% ब्लॉक है (पैटर्न स्कैन चालू)";
+        } else {
+            let calculated = (lastNum >= 0 && lastNum < 5) ? "BIG" : "SMALL";
+            if (isReverseMode) calculated = (calculated === "BIG") ? "SMALL" : "BIG";
+            
+            let modeTag = isReverseMode ? " (REVERSE)" : "";
+            sigDisplay.innerText = calculated;
+            subText.innerText = `🔥 HIGH CONFIDENCE${modeTag}! दांव: ₹${betPlan[currentLevel-1]}`;
+            badge.innerText = `🟢 HIGH CONFIDENCE STRIKE`;
+            badge.style.borderColor = "var(--neon-green)";
+            skipLabel.innerText = `एक्शन: L${currentLevel} फंड का इस्तेमाल करें`;
+        }
+
+        document.getElementById('lastResultBadge').innerText = `लास्ट: #${historyData.length > 0 ? historyData[0].num : '?'}`;
+        document.getElementById('vaultCountBadge').innerText = `कैद रिकॉर्ड: ${historyData.length} | अमर मेमोरी: ${permanentImmortalVault.length}`;
+
+        let logHtml = '';
+        historyData.forEach((item, i) => {
+            logHtml += `
+                <div class="history-terminal-row">
+                    <div style="color:var(--neon-cyan); font-weight:900;">
+                        <div>#${historyData.length - i}</div>
+                        <div style="font-size:9.5px; opacity:0.8;">${item.timestamp}</div>
+                    </div>
+                    <div>
+                        <div style="color:#fff;">अंक: <b>${item.num}</b> (${item.category})</div>
+                        <div style="font-size:9.5px; color:${item.isPlaced ? 'var(--neon-green)' : 'var(--neon-yellow)'};">
+                            ${item.isPlaced ? '✓ Real Bet Placed' : '⏭️ Skipped Round'}
+                        </div>
+                    </div>
+                    <div style="text-align:right;">
+                        <span class="${item.isPlaced ? 'badge-win' : 'badge-skip'}">${item.isPlaced ? 'RECORDED' : 'SKIPPED'}</span>
+                    </div>
+                </div>
+            `;
+        });
+        document.getElementById('historyLogList').innerHTML = logHtml;
+    }
+
+    function saveStorage() {
+        localStorage.setItem('king_akr_vault_v98', JSON.stringify(permanentImmortalVault));
+        localStorage.setItem('king_akr_rules_v98', JSON.stringify(customRulesVault));
+    }
+
+    function loadStorage() {
+        let v = localStorage.getItem('king_akr_vault_v98');
+        let r = localStorage.getItem('king_akr_rules_v98');
+        if (v) permanentImmortalVault = JSON.parse(v);
+        if (r) customRulesVault = JSON.parse(r);
+    }
+
+    function updateClock() {
+        document.getElementById('liveClockTime').innerText = `समय: ${new Date().toLocaleTimeString().toLowerCase()}`;
+    }
+    setInterval(updateClock, 1000);
+
+    /* BACKGROUND PARTICLES */
+    function initBgCanvas() {
+        const canvas = document.getElementById('bgCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        let particles = [];
+        for (let i = 0; i < 40; i++) {
+            particles.push({
+                x: Math.random() * width, y: Math.random() * height,
+                radius: Math.random() * 2 + 1,
+                vx: (Math.random() - 0.5) * 0.5, vy: (Math.random() - 0.5) * 0.5,
+                color: Math.random() > 0.5 ? '#00f2fe' : '#c084fc'
+            });
+        }
+
+        function drawBg() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => {
+                p.x += p.vx; p.y += p.vy;
+                if (p.x < 0 || p.x > width) p.vx *= -1;
+                if (p.y < 0 || p.y > height) p.vy *= -1;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = p.color; ctx.fill();
+            });
+            requestAnimationFrame(drawBg);
+        }
+        drawBg();
+    }
+
+    window.onload = function() {
+        initBgCanvas();
+        loadStorage();
+        renderDigitCards();
+        renderCustomRules();
+        updateUI();
+        drawChart();
+    };
+
+    window.addEventListener('resize', drawChart);
+</script>
+</body>
+</html>
